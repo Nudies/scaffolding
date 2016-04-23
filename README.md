@@ -19,7 +19,7 @@ from scaffolding import Scaffold
 # debug param sets a `/debug/` route for inspecting the environ dict
 app = Scaffold(debug=True)
 
-@app.route('/'):
+@app.route('/')
 def home(env):
   return 'Hello world!'
 
@@ -30,8 +30,7 @@ if __name__ == '__main__':
   httpd = make_server('', 8000, app)
   http.serve_forever()
 ```
-
-To see how to serve static html pages checkout the `example` directory.
+To see how to serve static html pages checkout the [example app](https://github.com/Nudies/scaffolding/blob/master/example/example_app.py) in `example/`.
 
 
 ### It kinda looks like flask...
