@@ -49,7 +49,7 @@ class Scaffold(object):
             return wraps
         return establish_route
 
-    def serve_static(self, file, status_code=200, mime='text/html'):
+    def serve_static(self, file, status_code=200, mimetype='text/html'):
         """Used to serve static files, it really just a convenince wrappper
         for `Response.set_response`
 
@@ -62,7 +62,7 @@ class Scaffold(object):
             for line in f:
                 body.append(line)
 
-        self.response.set_response(''.join(body), status_code, mime)
+        self.response.set_response(''.join(body), status_code, mimetype)
 
     def app(self, environ, start_response):
         """Pull everything together

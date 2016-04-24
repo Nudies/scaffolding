@@ -51,7 +51,7 @@ class Response(object):
         if self.body is not None:
             self.set_headers({'Content-Length': str(len(self.body))})
 
-        for k, v in self.headers:
+        for k, v in self.headers.iteritems():
             if k.lower() == 'content-type' and self.charset is not None:
                 v += '; charset=%s' % self.charset
             headers.append((k, v))
