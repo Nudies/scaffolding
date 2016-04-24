@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
 from .helpers import get_status
 
 
 class Response(object):
-    """Basic Response object"""
+    """Simple response object for use with WSGI applications"""
 
     def __init__(self):
         self.mimetype = None

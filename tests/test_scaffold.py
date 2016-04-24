@@ -29,7 +29,7 @@ def test_can_call_app(app):
 
 def test_can_register_routes(app):
     @app.route('/foo/')
-    def foo(env):
+    def foo(env, res):
         return 'foo'
 
     response = app({'PATH_INFO': '/foo/'}, mock_func)
@@ -61,12 +61,11 @@ def test_can_serve_static(app, tempdir):
             f.write('<h1>Hello World!</h1>')
 
         @app.route('/')
-        def home(env):
-            return app.serve_static(htmlfile)
+        def home(env, res):
+            return app.serve_static(htmlfile, mimetype='text/html')
 
         response = app({'PATH_INFO': '/'}, mock_func)
         assert response[0] == '<h1>Hello World!</h1>'
-        assert app.mimetype == 'text/html'
     finally:
         os.remove(htmlfile)
         os.rmdir(tempdir)

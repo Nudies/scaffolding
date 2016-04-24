@@ -20,7 +20,7 @@ from scaffolding import Scaffold
 app = Scaffold(debug=True)
 
 @app.route('/')
-def home(env):
+def home(env, res):
   return 'Hello world!'
 
 
