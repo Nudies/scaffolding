@@ -36,6 +36,20 @@ def test_can_register_routes(app):
     assert response[0] == 'foo'
 
 
+def test_bad_route_returns_404(app):
+    response = app({'PATH_INFO': '/baz/'}, mock_func)
+    assert response[0] == '404 Not Found'
+
+
+def test_no_status_code_returns_500(app):
+    @app.route('/foo/')
+    def foo(env, res):
+        return res.set_response('Hello', status_code=None)
+
+    response = app({'PATH_INFO': '/foo/'}, mock_func)
+    assert response[0] == '500 Server Error'
+
+
 def test_can_set_debug():
     app = Scaffold(debug=True)
     response = app({'PATH_INFO': '/debug/'}, mock_func)

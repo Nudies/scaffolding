@@ -56,18 +56,17 @@ class Response(object):
             if k.lower() == 'content-type' and self.charset is not None:
                 v += '; charset=%s' % self.charset
             headers.append((k, v))
-
         return headers
 
     def _dump_response(self):
         """Everything needed to create a response.
 
-        :returns: tuple
+        :returns: tuple of status msg, headers, and body
         """
-        status = get_status(self.status_code)
-        headers = self._build_headers()
         if self.body is not None:
             body = self.body
         else:
             body = ''
+        status = get_status(self.status_code)
+        headers = self._build_headers()
         return status, headers, body

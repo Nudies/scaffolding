@@ -61,7 +61,6 @@ class Scaffold(object):
         with open(os.path.join(self.staticdir, file), 'r') as f:
             for line in f:
                 body.append(line)
-
         self.response.set_response(''.join(body), status_code, mimetype)
 
     def app(self, environ, start_response):
