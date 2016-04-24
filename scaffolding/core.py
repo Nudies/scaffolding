@@ -3,6 +3,7 @@ import os
 from functools import wraps
 
 from .helpers import fix_path
+from .response import Response
 
 
 class Scaffold(object):
@@ -13,10 +14,10 @@ class Scaffold(object):
     """
 
     def __init__(self, debug=False):
-        self.mimetype = 'text/plain'
         self.staticdir = None
         self.routes = {}
         self.debug = debug
+        self.response = None
 
     def set_staticdir(self, dir):
         """Setup a staticdir for serving static files
@@ -48,19 +49,20 @@ class Scaffold(object):
             return wraps
         return establish_route
 
-    def serve_static(self, file, mime='text/html'):
-        """Used to serve static, often html files.
+    def serve_static(self, file, status_code=200, mime='text/html'):
+        """Used to serve static files, it really just a convenince wrappper
+        for `Response.set_response`
 
         :param file: File found in the `staticdir` location
         :param mime: mime type for the file, default is text/html
         :returns: HTTP response body
         """
-        self.mimetype = mime
-        response = []
+        body = []
         with open(os.path.join(self.staticdir, file), 'r') as f:
             for line in f:
-                response.append(line)
-        return ''.join(response)
+                body.append(line)
+
+        self.response.set_response(''.join(body), status_code, mime)
 
     def app(self, environ, start_response):
         """Pull everything together
@@ -72,12 +74,10 @@ class Scaffold(object):
         :returns: HTTP response body
         """
         path = fix_path(environ['PATH_INFO'])
-        response = None
 
-        def debug(env):
-            self.mimetype = 'text/plain'
+        def debug(env, res):
             resp = ['%s: %s' % (k, v) for k, v in env.iteritems()]
-            return '\n'.join(resp)
+            return self.response.set_response('\n'.join(resp), 200, 'text/plain')
 
         # Setup debuging route
         if self.debug:
@@ -85,23 +85,24 @@ class Scaffold(object):
 
         # Try to resolve a requested path
         if self.routes.get(path, False):
-            response = self.routes[path](environ)
+            # Normaly this is none, unless the route returns a string then it
+            # should be used as the response body, everything else ignore.
+            res = self.routes[path](environ, self.response)
+            if res is not None and isinstance(res, str):
+                self.response.set_response(res)
 
-        if response is not None:
-            status = '200 OK'
-        else:
-            status = '404 Not Found'
-            response = '404 Not Found'
+        # User created a route, but didn't return a valid response
+        if self.response.status_code is None and self.routes.get(path, False):
+            self.response.set_response('500 Server Error', 500)
+        # There is no route for the request
+        if self.response.status_code is None:
+            self.response.set_response('404 Not Found', 404)
 
-        # Setup our headers
-        headers = [
-                ('Content-Type', self.mimetype),
-                ('Content-Length', str(len(response)))
-            ]
-
+        status, headers, body = self.response._dump_response()
         start_response(status, headers)
-        return [response]
+        return [body]
 
     def __call__(self, environ, start_response):
         """Adhear to the WSGI standard of providing an invocable"""
+        self.response = Response()
         return self.app(environ, start_response)
