@@ -76,8 +76,8 @@ class Scaffold(object):
         path = fix_path(environ['PATH_INFO'])
 
         def debug(env, res):
-            resp = ['%s: %s' % (k, v) for k, v in env.iteritems()]
-            return self.response.set_response('\n'.join(resp), 200, 'text/plain')
+            body = ['%s: %s' % (k, v) for k, v in env.iteritems()]
+            return res.set_response('\n'.join(body), 200, 'text/plain')
 
         # Setup debuging route
         if self.debug:
