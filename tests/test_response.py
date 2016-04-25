@@ -17,7 +17,7 @@ def test_can_set_headers(res):
     }
     res.set_headers(headers)
     assert res.headers == headers
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         res.set_headers(['Content-Length', '22'])
     assert 'Expected a dict' in str(exc_info.value)
 

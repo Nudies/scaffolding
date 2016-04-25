@@ -18,7 +18,7 @@ class Response(object):
         :param headers: A dictionary of headers
         """
         if not isinstance(headers, dict):
-            raise ValueError('Expected a dict instead got %s' % type(headers))
+            raise TypeError('Expected a dict instead got %s' % type(headers))
         self.headers.update(headers)
 
     def set_response(self, body, status_code=200, mimetype='text/plain',
@@ -39,6 +39,20 @@ class Response(object):
         self.status_code = status_code
         self.mimetype = mimetype
         self.charset = charset
+
+    def redirect_for(self, location, body='', status_code=303,
+                     mimetype='text/plain', charset='utf-8'):
+        """Convenience method for redirecting requests
+
+        :param location: Location to redirect to. This can be a local path or
+                         the url to an exteternal resource
+        :param body: Response body to send
+        :param status_code: Status code
+        :param mimetype: The media type
+        :param charset: The character encoding for the response body
+        """
+        self.set_headers({'Location': location})
+        self.set_response(body, status_code)
 
     def _build_headers(self):
         """Turn the headers dictionary into a what WSGI server will expect

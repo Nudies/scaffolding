@@ -76,7 +76,7 @@ def get_status(status_code):
     :returns: HTTP status code string
     """
     if not isinstance(status_code, int):
-        raise ValueError('Expected int instead got %s' % type(status_code))
+        raise TypeError('Expected int instead got %s' % type(status_code))
 
     if not STATUS_CODES.get(status_code, False):
         return str(status_code)

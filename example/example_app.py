@@ -32,6 +32,21 @@ def baz(env, res):
     return res.set_response('%s' % params, 200)
 
 
+def misc(env, res):
+    res.set_response('<b>Hello!</b>', 200, 'text/html')
+
+
+def redirect(env, res):
+    res.redirect_for('/', 'See other')
+
+
+# Another way to establish routes instead of with the decorator
+app.set_routes({
+    '/misc/': misc,
+    '/redir/': redirect
+})
+
+
 if __name__ == '__main__':
     from wsgiref.simple_server import make_server
 

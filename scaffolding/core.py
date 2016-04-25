@@ -1,36 +1,33 @@
 # -*- coding: utf-8 -*-
 import os
+import re
 from functools import wraps
 
 from .helpers import fix_path
 from .response import Response
 
 
-class Scaffold(object):
-    """Ultra minimal wsgi framework for building python web apps
+class Router(object):
 
-    :param debug: If this is enabled the /debug/ path will display the environ
-                  variables
-    """
+    PathVarRx = re.compile(r'<(\w+)>')
 
-    def __init__(self, debug=False):
-        self.staticdir = None
+    def __init__(self):
         self.routes = {}
-        self.debug = debug
-        self.response = None
 
-    def set_staticdir(self, dir):
-        """Setup a staticdir for serving static files
+    def set_routes(self, routes):
+        """Establish multiple routes via a dict object where the key is the
+        path and the value is the handler.
 
-        :param dir: Static directory
+        :param routes: A dict of paths with handler values
         """
-        if os.path.isdir(dir):
-            self.staticdir = dir
-        else:
-            raise IOError('%s is not a directory' % dir)
+        if not isinstance(routes, dict):
+            raise TypeError('Expected dict instead got %s' % type(routes))
+        for k, v in routes.iteritems():
+            assert hasattr(v, '__call__'), 'Route handler must be callable'
+            self.routes[fix_path(k)] = v
 
     def route(self, path):
-        """Register routes with the framework. Usage looks something like this:
+        """Register routes via a decorator. Usage looks something like this:
 
             @app.route('/foo/bar/')
             def bar(environ):
@@ -49,6 +46,41 @@ class Scaffold(object):
             return wraps
         return establish_route
 
+    def resolve(self, path):
+        """Resolve requests to a specific path and return the callable
+        TODO: Add path variable sub
+
+        :param path: The requested path
+        """
+        handler = self.routes.get(fix_path(path), False)
+        if not handler:
+            return None
+        return handler
+
+
+class Scaffold(object):
+    """Ultra minimal wsgi framework for building python web apps
+
+    :param debug: If this is enabled the /debug/ path will display the environ
+                  variables
+    """
+
+    def __init__(self, debug=False):
+        self.staticdir = None
+        self.router = Router()
+        self.debug = debug
+        self.response = None
+
+    def set_staticdir(self, dir):
+        """Setup a staticdir for serving static files
+
+        :param dir: Static directory
+        """
+        if os.path.isdir(dir):
+            self.staticdir = dir
+        else:
+            raise IOError('%s is not a directory' % dir)
+
     def serve_static(self, file, status_code=200, mimetype='text/html'):
         """Used to serve static files, it really just a convenince wrappper
         for `Response.set_response`
@@ -62,6 +94,14 @@ class Scaffold(object):
             for line in f:
                 body.append(line)
         self.response.set_response(''.join(body), status_code, mimetype)
+
+    def route(self, path):
+        """Wrapper for the `Router.route`"""
+        return self.router.route(path)
+
+    def set_routes(self, routes):
+        """Wrapper for the `Router.set_routes`"""
+        return self.router.set_routes(routes)
 
     def app(self, environ, start_response):
         """Pull everything together
@@ -80,18 +120,20 @@ class Scaffold(object):
 
         # Setup debuging route
         if self.debug:
-            self.routes['/debug/'] = debug
+            self.set_routes({'/debug/': debug})
 
         # Try to resolve a requested path
-        if self.routes.get(path, False):
+        if self.router.resolve(path) is not None:
             # Normaly this is none, unless the route returns a string then it
             # should be used as the response body, everything else ignore.
-            res = self.routes[path](environ, self.response)
+            handler = self.router.resolve(path)
+            res = handler(environ, self.response)
             if res is not None and isinstance(res, str):
                 self.response.set_response(res)
 
         # User created a route, but didn't return a valid response
-        if self.response.status_code is None and self.routes.get(path, False):
+        if self.response.status_code is None and \
+                self.router.resolve(path) is not None:
             self.response.set_response('500 Server Error', 500)
         # There is no route for the request
         if self.response.status_code is None:

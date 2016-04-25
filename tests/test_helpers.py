@@ -13,6 +13,6 @@ def test_fix_path():
 def test_get_status():
     assert get_status(100) == '100 Continue'
     assert get_status(999) == '999'
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(TypeError) as exc_info:
         get_status('foo')
     assert 'Expected int' in str(exc_info.value)
