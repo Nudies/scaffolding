@@ -55,6 +55,14 @@ STATUS_CODES = {
     505: 'HTTP Version Not Supported'
 }
 
+HTML_ESCAPES = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&apos;'
+}
+
 
 def fix_path(path):
     """
@@ -82,3 +90,13 @@ def get_status(status_code):
         return str(status_code)
 
     return str(status_code) + ' ' + STATUS_CODES[status_code]
+
+
+def html_escape(s):
+    """Replace potentially unsafe characters with html entities
+
+    :param s: character string
+    :returns: s with html escapes applied
+    """
+    escaped = ''.join([HTML_ESCAPES.get(char, char) for char in s])
+    return escaped

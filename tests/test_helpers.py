@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from scaffolding.helpers import fix_path, get_status
+from scaffolding.helpers import fix_path, get_status, html_escape
 
 
 def test_fix_path():
@@ -16,3 +16,9 @@ def test_get_status():
     with pytest.raises(TypeError) as exc_info:
         get_status('foo')
     assert 'Expected int' in str(exc_info.value)
+
+
+def test_html_escape():
+    assert html_escape('<b>foo</b>') == '&lt;b&gt;foo&lt;/b&gt;'
+    assert html_escape('\'"&<>') == '&apos;&quot;&amp;&lt;&gt;'
+    assert html_escape('!@#$%^*') == '!@#$%^*'
