@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
+import random
+
 from scaffolding import Scaffold
 
 
-static_path = os.path.join(os.path.abspath(os.curdir), 'static')
 app = Scaffold(debug=True)
+static_path = os.path.join(os.path.abspath(os.curdir), 'static')
 app.set_staticdir(static_path)
 
 
@@ -13,37 +15,23 @@ def home(env, res):
     return app.serve_static('index.html', mimetype='text/html')
 
 
-@app.route('/foo/')
-def foo(env, res):
-    return 'Welcome to the foo page!'
+@app.route('/upper/')
+def to_upper(env, res):
+    if env['QUERY_STRING'] is not None:
+        for param in env['QUERY_STRING'].split('&'):
+            if param.startswith('name='):
+                result = param.split('=')[1].upper()
+                return res.set_response(result, 200, 'text/plain')
+    return res.redirect_for('/')
 
 
-@app.route('/bar/')
-def bar(env, res):
-    return app.serve_static('bar.html', mimetype='text/html')
-
-
-@app.route('/baz/')
-def baz(env, res):
-    params = env.get('QUERY_STRING', False)
-    if not params:
-        res.set_headers({'Location': 'https://github.com/Nudies/scaffolding'})
-        return res.set_response('Such redirect', 307)
-    return res.set_response('%s' % params, 200)
-
-
-def misc(env, res):
-    res.set_response('<b>Hello!</b>', 200, 'text/html')
-
-
-def redirect(env, res):
-    res.redirect_for('/', 'See other')
+def rand(env, res):
+    return str(random.randrange(1, 11))
 
 
 # Another way to establish routes instead of with the decorator
 app.set_routes({
-    '/misc/': misc,
-    '/redir/': redirect
+    '/random/': rand
 })
 
 
