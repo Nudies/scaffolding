@@ -14,7 +14,7 @@ No. In fact you really shouldn't use it as it doesn't provide much of anything A
 
 ### How do I use it?
 ```python
-from scaffolding import Scaffold
+from scaffolding import Scaffold, simple_server
 
 # debug param sets a `/debug/` route for inspecting the environ dict
 app = Scaffold(debug=True)
@@ -25,10 +25,7 @@ def home(env, res):
 
 
 if __name__ == '__main__':
-  from wsgired.simple_server import make_server
-
-  httpd = make_server('', 8000, app)
-  http.serve_forever()
+  simple_server(app)
 ```
 To see how to serve static html pages checkout the [example app](https://github.com/Nudies/scaffolding/blob/master/example/example_app.py) in `example/`.
 

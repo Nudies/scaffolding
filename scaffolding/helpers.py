@@ -100,3 +100,19 @@ def html_escape(s):
     """
     escaped = ''.join([HTML_ESCAPES.get(char, char) for char in s])
     return escaped
+
+
+def simple_server(app, host='', port=8000, debug=True):
+    """Wrapper around `wsgiref.simple_server.make_server` this allows for easy
+    testing of apps during development.
+
+    :param app: application callable
+    :param host: address to the host, default localhost
+    :param port: port number, default 8000
+    :param debug: Sets the app to enable the debug page
+    """
+    from wsgiref.simple_server import make_server
+    if debug:
+        app.debug = True
+    httpd = make_server(host, port, app)
+    httpd.serve_forever()

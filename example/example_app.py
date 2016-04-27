@@ -2,7 +2,7 @@
 import os
 import random
 
-from scaffolding import Scaffold
+from scaffolding import Scaffold, simple_server
 
 
 app = Scaffold(debug=True)
@@ -36,8 +36,4 @@ app.set_routes({
 
 
 if __name__ == '__main__':
-    from wsgiref.simple_server import make_server
-
-    httpd = make_server('', 8000, app)
-    print 'Server running on port 8000'
-    httpd.serve_forever()
+    simple_server(app, port=8000)
