@@ -45,7 +45,7 @@ def test_can_build_headers(res):
 
 def test_dump_response(res):
     res.status_code = 200
-    status, headers, body = res._dump_response()
+    status, headers, body = res.dump_response()
     assert isinstance(status, str)
     assert '200 OK' in status
     assert isinstance(headers, list)
