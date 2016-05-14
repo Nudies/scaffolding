@@ -72,7 +72,7 @@ class Response(object):
             headers.append((k, v))
         return headers
 
-    def _dump_response(self):
+    def dump_response(self):
         """Everything needed to create a response.
 
         :returns: tuple of status msg, headers, and body

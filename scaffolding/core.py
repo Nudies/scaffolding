@@ -138,7 +138,7 @@ class Scaffold(object):
         if self.response.status_code is None:
             self.response.set_response('404 Not Found', 404)
 
-        status, headers, body = self.response._dump_response()
+        status, headers, body = self.response.dump_response()
         start_response(status, headers)
         return [body]
 

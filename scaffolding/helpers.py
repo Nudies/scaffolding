@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Generic helper functions for the sacffolding framework"""
 
+
 STATUS_CODES = {
     # 1XX Informational
     100: 'Continue',
@@ -115,4 +116,5 @@ def simple_server(app, host='', port=8000, debug=True):
     if debug:
         app.debug = True
     httpd = make_server(host, port, app)
+    print 'Listening on %s port %s' % (host or 'localhost', port)
     httpd.serve_forever()
