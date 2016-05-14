@@ -123,17 +123,16 @@ class Scaffold(object):
             self.set_routes({'/debug/': debug})
 
         # Try to resolve a requested path
-        if self.router.resolve(path) is not None:
+        handler = self.router.resolve(path)
+        if handler is not None:
             # Normaly this is none, unless the route returns a string then it
             # should be used as the response body, everything else ignore.
-            handler = self.router.resolve(path)
             res = handler(environ, self.response)
             if res is not None and isinstance(res, str):
                 self.response.set_response(res)
 
         # User created a route, but didn't return a valid response
-        if self.response.status_code is None and \
-                self.router.resolve(path) is not None:
+        if self.response.status_code is None and handler is not None:
             self.response.set_response('500 Server Error', 500)
         # There is no route for the request
         if self.response.status_code is None:
