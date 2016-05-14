@@ -124,7 +124,7 @@ class Scaffold(object):
 
         # Try to resolve a requested path
         handler = self.router.resolve(path)
-        if handler is not None:
+        if handler is not None and hasattr(handler, '__call__'):
             # Normaly this is none, unless the route returns a string then it
             # should be used as the response body, everything else ignore.
             res = handler(environ, self.response)
